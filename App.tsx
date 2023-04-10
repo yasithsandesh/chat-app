@@ -22,7 +22,7 @@ function App() {
   const dark = useColorScheme() == 'dark';
   const ui = (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Log In">
+      <Stack.Navigator initialRouteName="Main">
         <Stack.Screen name='main' component={Main}/>
         <Stack.Screen name="Log In" component={LogIn}  options={{
           headerShown:false
