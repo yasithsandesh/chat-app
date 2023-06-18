@@ -1,11 +1,18 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, {useEffect, useState} from 'react';
-import {Alert, FlatList, Pressable, Text, TextInput, useColorScheme} from 'react-native';
+import {
+  Alert,
+  FlatList,
+  Pressable,
+  Text,
+  TextInput,
+  useColorScheme,
+} from 'react-native';
 import {Image, SafeAreaView, StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {ResetPassword} from './resetPassword';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 export function Settings({route, navigation}) {
   const [fname, setFname] = useState('');
@@ -13,18 +20,23 @@ export function Settings({route, navigation}) {
   const [mobile, setMobile] = useState('');
   const [about, setAbout] = useState('');
 
-  const [data, setData] = useState([
-    {
-      fname: '',
-      lname: '',
-      mobile: '',
-    },
-  ]);
-
   const [profileImage, setProfileImage] = useState();
 
+  
+
+  useEffect(() => {
+    const user = async () => {
+      const data = await AsyncStorage.getItem('user');
+      const datajsobj = JSON.parse(data);
+      setFname(datajsobj.fname);
+      setLname(datajsobj.lname);
+      setMobile(datajsobj.mobile);
+      setAbout(datajsobj.about);
+    };
+    user();
+  }, []);
+
   async function updateRequest() {
-    
     var userDataJson = await AsyncStorage.getItem('user');
     var userDataJs = JSON.parse(userDataJson);
     var jsObject = {
@@ -49,68 +61,22 @@ export function Settings({route, navigation}) {
     })
       .then(response => response.json())
       .then(json => {
-        
-      })
-      .catch(error => console.log(error));
-
-
-      function loadUserData() {
-        fetch(
-          'http://localhost/chatAppAPI/userDataLoad.php?id=' + route.params.id,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          },
-        )
-          .then(response => response.json())
-          .then(json => {
-            setData(json);
-          })
-          .catch(error => console.log(error));
-      }
-      loadUserData();
-  }
-
-  function loadUserData() {
-    fetch(
-      'http://localhost/chatAppAPI/userDataLoad.php?id=' + route.params.id,
-      {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      },
-    )
-      .then(response => response.json())
-      .then(json => {
-        setData(json);
       })
       .catch(error => console.log(error));
   }
-  useEffect(loadUserData,[]);
 
-  const dark = useColorScheme()=== 'dark';
+  const dark = useColorScheme() === 'dark';
 
   const background = {
     flex: 1,
     alignItems: 'center',
     gap: 20,
-    backgroundColor: dark?Colors.darker:Colors.white,
-  }
+    backgroundColor: dark ? Colors.darker : Colors.white,
+  };
 
   const ui = (
     <SafeAreaView style={background}>
-      <FlatList data={data} renderItem={dataUi} />
-    </SafeAreaView>
-  );
-
-  function dataUi({item}) {
-    const ui = (
-      <View style={dark?styles.itemMainViewDark:styles.itemMainView}>
+      <View style={dark ? styles.itemMainViewDark : styles.itemMainView}>
         <View style={styles.profileEditView}>
           <Image
             source={{
@@ -133,7 +99,7 @@ export function Settings({route, navigation}) {
           <Icon name="user" style={styles.icon} color="#47555c" />
           <TextInput
             style={styles.SettingTextInput}
-            placeholder={item.fname}
+            value={fname}
             onChangeText={setFname}
             autoCorrect={false}
           />
@@ -144,7 +110,7 @@ export function Settings({route, navigation}) {
           <Icon name="user" style={styles.icon} color="#47555c" />
           <TextInput
             style={styles.SettingTextInput}
-            placeholder={item.lname}
+            value={lname}
             onChangeText={setLname}
             autoCorrect={false}
           />
@@ -155,7 +121,7 @@ export function Settings({route, navigation}) {
           <Icon name="mobile" style={styles.icon} color="#47555c" />
           <TextInput
             style={styles.SettingTextInput}
-            placeholder={item.mobile}
+            value={mobile}
             inputMode={'numeric'}
             autoCorrect={false}
             maxLength={10}
@@ -168,7 +134,7 @@ export function Settings({route, navigation}) {
           <Icon name="pencil" style={styles.icon} color="#47555c" />
           <TextInput
             style={styles.SettingTextInput}
-            placeholder={item.about}
+            value={about}
             onChangeText={setAbout}
           />
         </View>
@@ -181,9 +147,8 @@ export function Settings({route, navigation}) {
           <Text style={styles.resetPasswordText}>Reset Password</Text>
         </Pressable>
       </View>
-    );
-    return ui;
-  }
+    </SafeAreaView>
+  );
 
   return ui;
 
@@ -269,7 +234,7 @@ const styles = StyleSheet.create({
   },
   doneBtn: {
     backgroundColor: '#5896EB',
-    width: '40%',
+    width: 200,
     height: 50,
     borderRadius: 50,
     alignItems: 'center',
@@ -310,7 +275,7 @@ const styles = StyleSheet.create({
 
   resetPasswordBtn: {
     backgroundColor: '#98a0a4',
-    width: '80%',
+    width: 200,
     height: 50,
     justifyContent: 'center',
     alignItems: 'center',
